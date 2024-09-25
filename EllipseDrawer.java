@@ -1,31 +1,65 @@
+import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Scanner;
 
 public class EllipseDrawer {
 
     public static void main(String[] args) {
-        // Создаем графический контекст для рисования
-        Graphics2D g2d = (Graphics2D) new BufferedImage(400, 400, BufferedImage.TYPE_INT_ARGB).getGraphics();
+        // Создаем окно
+        JFrame frame = new JFrame("Эллипс");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 400);
 
-        // Создаем объекты Ellipse
-        Ellipse ellipse1 = new Ellipse(50, 50, 100, 50);
-        Ellipse ellipse2 = new Ellipse(200, 200, 75, 30);
-        Ellipse ellipse3 = new Ellipse(300, 100, 50, 150);
-        Ellipse ellipse4 = new Ellipse(150, 150, 50, 50);
+        // Создаем панель для рисования
+        JPanel drawingPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
 
-        // Рисуем эллипсы
-        ellipse1.draw(g2d);
-        ellipse2.draw(g2d);
-        ellipse3.draw(g2d);
+                // Рисуем эллипс, если он был создан
+                if (ellipse != null) {
+                    ellipse.drawScanline(g2d);
+                }
+            }
+        };
+        frame.add(drawingPanel);
 
-        // Поворачиваем эллипс4
-        ellipse4.rotate(45, 150, 150);
-        ellipse4.draw(g2d);
+        // Создаем панель для кнопок
+        JPanel buttonPanel = new JPanel();
+        JButton button1 = new JButton("Создать эллипс");
+        button1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createEllipse(drawingPanel);
+            }
+        });
+        buttonPanel.add(button1);
+        frame.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Отрисовка результата (необязательно, если используется GUI)
-        // ...
+        frame.setVisible(true);
+    }
+
+    // Метод для создания эллипса
+    static Ellipse ellipse;
+
+    private static void createEllipse(JPanel drawingPanel) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Введите координату x левого верхнего угла:");
+        int x = scanner.nextInt();
+        System.out.println("Введите координату y левого верхнего угла:");
+        int y = scanner.nextInt();
+        System.out.println("Введите ширину эллипса (2 * полуось a):");
+        int width = scanner.nextInt();
+        System.out.println("Введите высоту эллипса (2 * полуось b):");
+        int height = scanner.nextInt();
+
+        ellipse = new Ellipse(x, y, width, height);
+
+        drawingPanel.repaint();
     }
 }
 
@@ -35,6 +69,7 @@ class Ellipse {
     private int width;
     private int height;
 
+    // Конструктор с левым верхним углом и размерами (ширина и высота - это 2 * полуоси)
     public Ellipse(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
@@ -42,21 +77,25 @@ class Ellipse {
         this.height = height;
     }
 
-    public Ellipse(int centerX, int centerY, int a, int b) {
-        this.x = centerX - a;
-        this.y = centerY - b;
-        this.width = 2 * a;
-        this.height = 2 * b;
+    public void drawScanline(Graphics2D g2d) {
+        int centerX = x + width / 2;
+        int centerY = y + height / 2;
+        int a = width / 2;
+        int b = height / 2;
+
+        // Исправленный код:
+        for (int j = y; j < y + height; j++) { // Переменная j вместо y
+            for (int i = x; i < x + width; i++) { // Переменная i вместо x
+                if (isPointInsideEllipse(i, j, centerX, centerY, a, b)) {
+                    g2d.fillRect(i, j, 1, 1);
+                }
+            }
+        }
     }
 
-    public void draw(Graphics2D g2d) {
-        Ellipse2D.Double ellipse = new Ellipse2D.Double(x, y, width, height);
-        g2d.draw(ellipse);
-    }
-
-    public void rotate(double angle, int centerX, int centerY) {
-        AffineTransform rotate = AffineTransform.getRotateInstance(Math.toRadians(angle), centerX, centerY);
-        this.x = (int) rotate.transform(new Point(x, y), null).getX();
-        this.y = (int) rotate.transform(new Point(x, y), null).getY();
+    private boolean isPointInsideEllipse(int x, int y, int centerX, int centerY, int a, int b) {
+        double dx = x - centerX;
+        double dy = y - centerY;
+        return (dx * dx) / (a * a) + (dy * dy) / (b * b) <= 1;
     }
 }
