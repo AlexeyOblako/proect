@@ -7,27 +7,23 @@ import java.util.Scanner;
 public class EllipseDrawer {
 
     public static void main(String[] args) {
-        // Создаем окно
         JFrame frame = new JFrame("Эллипс");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 400);
 
-        // Создаем панель для рисования
         JPanel drawingPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
 
-                // Рисуем эллипс, если он был создан
                 if (ellipse != null) {
-                    ellipse.drawScanline(g2d);
+                    ellipse.drawBoundary(g2d);
                 }
             }
         };
         frame.add(drawingPanel);
 
-        // Создаем панель для кнопок
         JPanel buttonPanel = new JPanel();
         JButton button1 = new JButton("Создать эллипс");
         button1.addActionListener(new ActionListener() {
@@ -77,25 +73,21 @@ class Ellipse {
         this.height = height;
     }
 
-    public void drawScanline(Graphics2D g2d) {
+    public void drawBoundary(Graphics2D g2d) {
         int centerX = x + width / 2;
         int centerY = y + height / 2;
         int a = width / 2;
         int b = height / 2;
 
-        // Исправленный код:
-        for (int j = y; j < y + height; j++) { // Переменная j вместо y
-            for (int i = x; i < x + width; i++) { // Переменная i вместо x
-                if (isPointInsideEllipse(i, j, centerX, centerY, a, b)) {
+        double threshold = 0.05; // Погрешность для проверки границы
+
+        for (int j = y; j < y + height; j++) {
+            for (int i = x; i < x + width; i++) {
+                double equation = (Math.pow(i - centerX, 2) / Math.pow(a, 2)) + (Math.pow(j - centerY, 2) / Math.pow(b, 2));
+                if (Math.abs(equation - 1) < threshold) {
                     g2d.fillRect(i, j, 1, 1);
                 }
             }
         }
-    }
-
-    private boolean isPointInsideEllipse(int x, int y, int centerX, int centerY, int a, int b) {
-        double dx = x - centerX;
-        double dy = y - centerY;
-        return (dx * dx) / (a * a) + (dy * dy) / (b * b) <= 1;
     }
 }
