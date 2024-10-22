@@ -2,9 +2,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Scanner;
+import java.io.*;
 
 public class EllipseDrawer {
+
+    static Ellipse ellipse;
+    static JTextField xField, yField, widthField, heightField;
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Эллипс");
@@ -24,68 +27,79 @@ public class EllipseDrawer {
         };
         frame.add(drawingPanel);
 
-        JPanel buttonPanel = new JPanel();
-        JButton button1 = new JButton("Создать эллипс");
-        button1.addActionListener(new ActionListener() {
+        JPanel inputPanel = new JPanel();
+
+        // Создание текстовых полей для ввода координат и размеров
+        xField = new JTextField(5);
+        yField = new JTextField(5);
+        widthField = new JTextField(5);
+        heightField = new JTextField(5);
+
+        inputPanel.add(new JLabel("X:"));
+        inputPanel.add(xField);
+        inputPanel.add(new JLabel("Y:"));
+        inputPanel.add(yField);
+        inputPanel.add(new JLabel("Ширина:"));
+        inputPanel.add(widthField);
+        inputPanel.add(new JLabel("Высота:"));
+        inputPanel.add(heightField);
+
+        JButton createButton = new JButton("Создать эллипс");
+        createButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 createEllipse(drawingPanel);
             }
         });
-        buttonPanel.add(button1);
-        frame.add(buttonPanel, BorderLayout.SOUTH);
 
+        inputPanel.add(createButton);
+
+        frame.add(inputPanel, BorderLayout.SOUTH);
         frame.setVisible(true);
     }
 
-    // Метод для создания эллипса
-    static Ellipse ellipse;
-
     private static void createEllipse(JPanel drawingPanel) {
-        Scanner scanner = new Scanner(System.in);
+        try {
+            int x = Integer.parseInt(xField.getText());
+            int y = Integer.parseInt(yField.getText());
+            int width = Integer.parseInt(widthField.getText());
+            int height = Integer.parseInt(heightField.getText());
 
-        System.out.println("Введите координату x левого верхнего угла:");
-        int x = scanner.nextInt();
-        System.out.println("Введите координату y левого верхнего угла:");
-        int y = scanner.nextInt();
-        System.out.println("Введите ширину эллипса (2 * полуось a):");
-        int width = scanner.nextInt();
-        System.out.println("Введите высоту эллипса (2 * полуось b):");
-        int height = scanner.nextInt();
-
-        ellipse = new Ellipse(x, y, width, height);
-
-        drawingPanel.repaint();
-    }
-}
-
-class Ellipse {
-    private int x;
-    private int y;
-    private int width;
-    private int height;
-
-    // Конструктор с левым верхним углом и размерами (ширина и высота - это 2 * полуоси)
-    public Ellipse(int x, int y, int width, int height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+            ellipse = new Ellipse(x, y, width, height);
+            drawingPanel.repaint();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Пожалуйста, введите корректные числовые значения.", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
-    public void drawBoundary(Graphics2D g2d) {
-        int centerX = x + width / 2;
-        int centerY = y + height / 2;
-        int a = width / 2;
-        int b = height / 2;
 
-        double threshold = 0.05; // Погрешность для проверки границы
+    static class Ellipse implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private int x;
+        private int y;
+        private int width;
+        private int height;
 
-        for (int j = y; j < y + height; j++) {
-            for (int i = x; i < x + width; i++) {
-                double equation = (Math.pow(i - centerX, 2) / Math.pow(a, 2)) + (Math.pow(j - centerY, 2) / Math.pow(b, 2));
-                if (Math.abs(equation - 1) < threshold) {
-                    g2d.fillRect(i, j, 1, 1);
+        public Ellipse(int x, int y, int width, int height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+
+        public void drawBoundary(Graphics2D g2d) {
+            int centerX = x + width / 2;
+            int centerY = y + height / 2;
+            double threshold = 0.0555;
+
+            for (int j = y; j < y + height; j++) {
+                for (int i = x; i < x + width; i++) {
+                    double a = (double) width / 2;
+                    double b = (double) height / 2;
+                    double equation = (Math.pow(i - centerX, 2) / (a * a)) + (Math.pow(j - centerY, 2) / (b * b));
+                    if (Math.abs(equation - 1) < threshold) {
+                        g2d.fillRect(i, j, 1, 1);
+                    }
                 }
             }
         }
