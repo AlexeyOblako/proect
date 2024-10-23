@@ -2,17 +2,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
+import java.util.List;
 
-public class EllipseDrawer {
+public class DrawPanel extends JFrame {
+    private final int BACKGROUND_WIDTH = 400;
+    private final int BACKGROUND_HEIGHT = 400;
+    private static Ellipse ellipse;
+    private static JTextField xField, yField, widthField, heightField;
 
-    static Ellipse ellipse;
-    static JTextField xField, yField, widthField, heightField;
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Эллипс");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 400);
+    public DrawPanel(List<DrawObject> drawObjects) {
+        setTitle("Эллипс");
+        setSize(BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel drawingPanel = new JPanel() {
             @Override
@@ -20,16 +21,19 @@ public class EllipseDrawer {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
 
+                for (DrawObject obj : drawObjects) {
+                    obj.draw(g2d);
+                }
                 if (ellipse != null) {
                     ellipse.drawBoundary(g2d);
                 }
             }
         };
-        frame.add(drawingPanel);
+        add(drawingPanel);
 
         JPanel inputPanel = new JPanel();
 
-//         Создание текстовых полей для ввода координат и размеров
+        // Создание текстовых полей для ввода координат и размеров
         xField = new JTextField(5);
         yField = new JTextField(5);
         widthField = new JTextField(5);
@@ -48,17 +52,17 @@ public class EllipseDrawer {
         createButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                createEllipse(drawingPanel);
+                createEllipse(drawingPanel, drawObjects);
             }
         });
 
         inputPanel.add(createButton);
 
-        frame.add(inputPanel, BorderLayout.SOUTH);
-        frame.setVisible(true);
+        add(inputPanel, BorderLayout.SOUTH);
+        setVisible(true);
     }
 
-    private static void createEllipse(JPanel drawingPanel) {
+    private void createEllipse(JPanel drawingPanel, List<DrawObject> drawObjects) {
         try {
             int x = Integer.parseInt(xField.getText());
             int y = Integer.parseInt(yField.getText());
@@ -66,41 +70,10 @@ public class EllipseDrawer {
             int height = Integer.parseInt(heightField.getText());
 
             ellipse = new Ellipse(x, y, width, height);
+            drawObjects.add(ellipse);
             drawingPanel.repaint();
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Пожалуйста, введите корректные числовые значения.", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-
-    static class Ellipse implements Serializable {
-        private int x;
-        private int y;
-        private int width;
-        private int height;
-
-        public Ellipse(int x, int y, int width, int height) {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-        }
-
-        public void drawBoundary(Graphics2D g2d) {
-            int centerX = x + width / 2;
-            int centerY = y + height / 2;
-            double threshold = 0.0555;
-
-            for (int j = y; j < y + height; j++) {
-                for (int i = x; i < x + width; i++) {
-                    double a = (double) width / 2;
-                    double b = (double) height / 2;
-                    double equation = (Math.pow(i - centerX, 2) / (a * a)) + (Math.pow(j - centerY, 2) / (b * b));
-                    if (Math.abs(equation - 1) < threshold) {
-                        g2d.fillRect(i, j, 1, 1);
-                    }
-                }
-            }
         }
     }
 }
