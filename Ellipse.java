@@ -1,6 +1,7 @@
-import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.*;
+import javax.swing.*;
 import java.io.Serializable;
+import java.util.List;
 
 public class Ellipse implements DrawObject, Serializable {
     private int x;
@@ -34,6 +35,21 @@ public class Ellipse implements DrawObject, Serializable {
 
     @Override
     public void draw(Graphics2D g2d) {
+        drawBoundary(g2d);
+    }
 
+    public static void createEllipse(JPanel drawingPanel, List<DrawObject> drawObjects, JTextField xField, JTextField yField, JTextField widthField, JTextField heightField) {
+        try {
+            int x = Integer.parseInt(xField.getText());
+            int y = Integer.parseInt(yField.getText());
+            int width = Integer.parseInt(widthField.getText());
+            int height = Integer.parseInt(heightField.getText());
+
+            Ellipse ellipse = new Ellipse(x, y, width, height);
+            drawObjects.add(ellipse);
+            drawingPanel.repaint();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Пожалуйста, введите корректные числовые значения.", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
