@@ -1,15 +1,20 @@
 import java.awt.*;
 import javax.swing.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-public class Ellipse implements DrawObject, Serializable {
-    private int x;
-    private int y;
-    private int width;
-    private int height;
+class Ellipse implements DrawObject {
+    int x;//private
+    int y;//private
+    int width;//private
+    int height;//private
 
     public Ellipse(int x, int y, int width, int height) {
+        // Проверка на корректность входных данных
+        if (width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("Ширина и высота должны быть положительными числами.");
+        }
         this.x = x;
         this.y = y;
         this.width = width;
@@ -38,18 +43,23 @@ public class Ellipse implements DrawObject, Serializable {
         drawBoundary(g2d);
     }
 
-    public static void createEllipse(JPanel drawingPanel, List<DrawObject> drawObjects, JTextField xField, JTextField yField, JTextField widthField, JTextField heightField) {
+    public static Ellipse createEllipse(int x, int y, int width, int height) {
         try {
-            int x = Integer.parseInt(xField.getText());
-            int y = Integer.parseInt(yField.getText());
-            int width = Integer.parseInt(widthField.getText());
-            int height = Integer.parseInt(heightField.getText());
-
-            Ellipse ellipse = new Ellipse(x, y, width, height);
-            drawObjects.add(ellipse);
-            drawingPanel.repaint();
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Пожалуйста, введите корректные числовые значения.", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
+            return new Ellipse(x, y, width, height);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Ошибка создания эллипса", JOptionPane.ERROR_MESSAGE);
+            return null; // Или выбросить исключение дальше, зависит от архитектуры
         }
+    }
+
+
+    public static List<Ellipse> createEllipses(){
+        List<Ellipse> ellipses = new ArrayList<>();
+        try {
+            ellipses.add(createEllipse(100, 100, 150, 150));
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+        }
+        return ellipses;
     }
 }

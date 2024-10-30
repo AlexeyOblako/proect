@@ -4,8 +4,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        List<DrawObject> objects = new ArrayList<>();
-        DrawPanel drawPanel = new DrawPanel(objects);
-        drawPanel.setVisible(true);
+        List<DrawObject> drawObjects = new ArrayList<>(Ellipse.createEllipses());
+        new DrawPanel(drawObjects);
     }
 }
