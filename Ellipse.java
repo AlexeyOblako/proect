@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 class Ellipse implements DrawObject {
-    int x;//private
-    int y;//private
-    int width;//private
-    int height;//private
+    int x; // private
+    int y; // private
+    int width; // private
+    int height; // private
 
     public Ellipse(int x, int y, int width, int height) {
         // Проверка на корректность входных данных
@@ -52,8 +52,7 @@ class Ellipse implements DrawObject {
         }
     }
 
-
-    public static List<Ellipse> createEllipses(){
+    public static List<Ellipse> createEllipses() {
         List<Ellipse> ellipses = new ArrayList<>();
         try {
             ellipses.add(createEllipse(100, 100, 150, 150));

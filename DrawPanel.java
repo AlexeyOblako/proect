@@ -2,12 +2,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 class DrawPanel extends JFrame {
     private final int BACKGROUND_WIDTH = 400;
     private final int BACKGROUND_HEIGHT = 400;
     private List<DrawObject> drawObjects;
+
+    public DrawPanel() {
+        this(new ArrayList<DrawObject>());
+    }
 
     public DrawPanel(List<DrawObject> drawObjects) {
         setTitle("Рисование");
@@ -27,5 +32,17 @@ class DrawPanel extends JFrame {
         };
         add(drawingPanel);
         setVisible(true);
+    }
+
+
+    public void add(DrawObject obj) {
+        drawObjects.add(obj);
+        repaint();
+    }
+
+
+    public void remove(DrawObject obj) {
+        drawObjects.remove(obj);
+        repaint();
     }
 }
